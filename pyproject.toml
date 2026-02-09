@@ -1,0 +1,14 @@
+[project]
+name = "magma-core"
+version = "0.1.0"
+description = "Core abstractions and protocols for MAGMA"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["torch"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

@@ -1,0 +1,1 @@
+from .registry import PROMPT_REGISTRY

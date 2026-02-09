@@ -1,0 +1,15 @@
+# Set some default parameters for the (possible multiple) backend to use
+# Available type are currently only ollama (to do: vllm,...)
+backends:
+  default_ollama:
+    type: ollama
+    endpoint: "https://http://172.16.21.1:21601/v1/chat/completions"
+    default_model: "gpt-oss:20b"
+    timeout: 30
+    max_retry: 3
+    # If your server requires an header for authorization or anything. You can set it here
+    headers:
+      Authorization: null
+      Content-type: "application/json"
+
+# Create your own config.yaml or override this one
