@@ -1,10 +1,10 @@
 [project]
-name = "magma-core"
+name = "magma_core"
 version = "0.1.0"
 description = "Core abstractions and protocols for MAGMA"
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = ["torch"]
+dependencies = ["torch","json_numpy","requests","mani_skill"]
 
 [project.optional-dependencies]
 dev = ["pytest"]
