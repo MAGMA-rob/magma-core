@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 import sapien
 import torch
 import numpy as np
@@ -116,12 +119,12 @@ class DefaultEnv(BaseEnv):
 
     ###### Some builders
 
-    def build_a_zone(self, width=0.2, lenght=0.2, color=[1,1,1,1], collision = False, name = "zone"):
+    def build_a_zone(self, width=0.2, length=0.2, color=[1,1,1,1], collision = False, name = "zone"):
         """Build a zone"""
         builder = self.scene.create_actor_builder()
 
         material = sapien.render.RenderMaterial(base_color=color)
-        size = [width, lenght, 0.01]
+        size = [width, length, 0.01]
         builder.add_box_visual(pose=sapien.Pose([0, 0, 0])  , half_size=size, material=material)
         
         if collision:

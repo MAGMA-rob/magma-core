@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 from typing import Dict, List, Any, Tuple, Type, Optional
 from abc import ABC, abstractmethod
 import torch, copy
@@ -99,7 +102,7 @@ class BaseTaskStage(ABC):
         
         :param obs: The env observation
         :type obs: Dict
-        :return: A tensor of int of nb_env lenght. 1 for success, -1 for catastrophic failure, 0 otherwise. 1 default
+        :return: A tensor of int of nb_env length. 1 for success, -1 for catastrophic failure, 0 otherwise. 1 default
         :rtype: torch.Tensor
         """
         nb_env = obs["agent"]["qpos"].shape[0]
@@ -164,8 +167,7 @@ class BaseTask(ABC):
         super().__init__()
         self.env_options = {}
         self.planner_options = {
-            "urdf": '/home/motionplanner/panda/panda_v2.urdf',
-            "srdf": '/home/motionplanner/panda/panda_v2.srdf',
+            "robot": 'panda_v2',
             "joint_vel_limit": 0.9,
             "joint_acc_limit": 0.9,
             "control_timesteps": 0
@@ -258,7 +260,7 @@ class BaseTask(ABC):
             self.agent_names = agents_name
 
         if len(env_agents) != len(self.agent_names):
-            raise TypeError(f"agent_names ({len(self.agent_names)}) must have the exact same lenght that the number of agents ({len(env_agents)}) in the env. Names and Agent will be associated by index")
+            raise TypeError(f"agent_names ({len(self.agent_names)}) must have the exact same length that the number of agents ({len(env_agents)}) in the env. Names and Agent will be associated by index")
                 
         
         equivalence = {self.agent_names[i] : i for i in range(len(agents_name))}
@@ -340,7 +342,7 @@ class BaseTask(ABC):
 
     def _verif_stage(self, stage_id : int):
         if stage_id < 0 or stage_id >= self.NB_STAGES:
-            raise ValueError(f"stage_id ({stage_id}) is superior to the total lenght ({self.NB_STAGES}) of steps for this task")
+            raise ValueError(f"stage_id ({stage_id}) is superior to the total length ({self.NB_STAGES}) of steps for this task")
     
 
     def get_stage_state(self, stage_id : int, agent_step : int) -> StageState:
@@ -420,7 +422,7 @@ class BaseTask(ABC):
                 if a and a != current_log[i].action: return False, r
                 if c:
                     if isinstance(current_log[i].content, Tuple) and isinstance(c, List):
-                        if len(current_log[i].content) != len(c): return False, f"At {i}, log have different content lenght : ref {len(c)} != cur ({len(current_log[i].content)})"
+                        if len(current_log[i].content) != len(c): return False, f"At {i}, log have different content length : ref {len(c)} != cur ({len(current_log[i].content)})"
                         for j in range(len(c)):
                             if current_log[i].content[j] != c[j]: return False,  f"At {i}-{j}, log have different content : ref {c[j]} != cur {current_log[i].content[j]}"
                         return True, ""
@@ -428,7 +430,7 @@ class BaseTask(ABC):
                         return False, f"At {i}, log have different types : ref {type(c)} != cur ({type(current_log[i].content)})"
                     if current_log[i].content != c: return False, r
         else:
-            return False, "logs and ref_logs do not have the same lenght"
+            return False, "logs and ref_logs do not have the same length"
 
         return True, ""
     

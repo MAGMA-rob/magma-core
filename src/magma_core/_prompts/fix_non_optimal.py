@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 CORRECTION_PROMPT = """\
 You need now to propose a correction of this bad step by the model.
 

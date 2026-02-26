@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 from dataclasses import dataclass
 from typing import Dict, List, Union
 
@@ -9,7 +12,7 @@ class EnvCreationInfos:
     env_id : int 
     env_state : Dict
     logs : List
-    stage_log_lenght : int
+    stage_log_length : int
     stage_id : int
 
     tool_call : Union[ToolCall, MultipleToolCall]

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 from typing import Type
 from .client_base import LLMClientBase
 from .ollama_client import OllamaClient
@@ -16,4 +19,4 @@ class ClientFactory:
             raise ValueError(f"Unknown LM Backend {backend_config.type}. Avalaible are : {','.join(CLIENT_REGISTRY.keys())}")
 
         ClientCLS = CLIENT_REGISTRY[backend_config.type]
-        return ClientCLS(**backend_config.to_dict())
+        return ClientCLS(backend_config)

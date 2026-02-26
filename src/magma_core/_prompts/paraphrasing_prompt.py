@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 PARAPHRASING = """
 SYSTEM:
 You are adapting user instructions in a human–robot interaction context.

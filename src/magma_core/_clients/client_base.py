@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
 
@@ -8,9 +11,8 @@ class LLMClientBase(ABC):
     Base class to create a custom LLM CLient to handle payload sended by the workers for coaching, user simulation, curriculum etc...
     """
 
-    def __init__(self, config: BackendConfig, server_instance : int = 0):
+    def __init__(self, config: BackendConfig):
         self.config = config
-        self.server_instance = server_instance
 
     @abstractmethod
     def send_prompt(

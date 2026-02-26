@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 from typing import Dict, List, Any, Tuple, Optional, Type
 from ..registry import ExternalRequestType
 from .base_payload import BasePayload
@@ -101,7 +104,7 @@ class DiagnosticSubOptimalPayload(BasePayload):
 class FixTextOnlyStage(BasePayload):
     """
     Paylod to fix Stage where the model must memorize a constraint or answer to an user
-    Currently supporting only 1-lenght stage
+    Currently supporting only 1-length stage
     """
 
     def __init__(self, 

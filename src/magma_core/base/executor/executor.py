@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 from typing import Dict, List, Any, Tuple, Union, Type
 from collections import OrderedDict
 import torch, inspect, logging
@@ -33,6 +36,7 @@ class ToolsBaseExecutor(ABC):
     # Params
     _gui : bool
     worker : LMWorker
+    planner_endpoint : str
 
     # Randomization
     randomized : bool
@@ -42,6 +46,7 @@ class ToolsBaseExecutor(ABC):
             self,
             nb_env : int,
             ollama_worker : LMWorker,
+            planner_endpoint : str,
             gui : bool = False,
             randomized : bool = False,
         ):
@@ -50,6 +55,7 @@ class ToolsBaseExecutor(ABC):
         self._gui = gui
         self.randomized = randomized
         self.logger = logging.getLogger("EXECUTION")
+        self.planner_endpoint = planner_endpoint
 
         if randomized:
             self.randomizer = ToolRandomizerWrapper(0)
@@ -167,6 +173,7 @@ class ToolsBaseExecutor(ABC):
         self.trajectory_converter = TrajectoryConverter(
             self.env.unwrapped,
             self.nb_env,
+            self.planner_endpoint,
             planner_init_options = self.task_ref.planner_options
         )
         a = self.step()
@@ -271,7 +278,7 @@ class ToolsBaseExecutor(ABC):
             obs : Dict,
             stage_id : int,
             current_node_step : int,
-            original_log_lenght : int,
+            original_log_length : int,
             source_node_id : int,
             node_id : int = -1,
             logs : List = [],
@@ -292,7 +299,7 @@ class ToolsBaseExecutor(ABC):
                     tool_robots=robot_tool,
                     logs=logs,
                     task_stage=stage_id,
-                    stage_log_start_idx=original_log_lenght,
+                    stage_log_start_idx=original_log_length,
                     source_id=source_node_id,
                     agent_step=current_node_step
                 )
@@ -304,7 +311,7 @@ class ToolsBaseExecutor(ABC):
             obs : Dict,
             stage_id : int,
             current_node_step : int,
-            original_log_lenght : int,
+            original_log_length : int,
             source_node_id : int,
             node_id : int = -1,
             logs : List = [],
@@ -326,7 +333,7 @@ class ToolsBaseExecutor(ABC):
                         ),
                     )],
                     logs=logs,
-                    stage_log_start_idx=original_log_lenght,
+                    stage_log_start_idx=original_log_length,
                     task_stage=stage_id,
                     source_id=source_node_id,
                     agent_step=current_node_step
@@ -361,7 +368,7 @@ class ToolsBaseExecutor(ABC):
                     tool_robots=robot_tool,
                     logs=logs,
                     source_id=source_node_id,
-                    stage_log_start_idx=original_log_lenght,
+                    stage_log_start_idx=original_log_length,
                     task_stage=stage_id,
                     agent_step=current_node_step
                 )

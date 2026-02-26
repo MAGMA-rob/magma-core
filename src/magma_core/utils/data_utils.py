@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 from typing import Dict, Tuple, Type, List, Optional, Any, Literal
 
 def apply_att_modif(attributes : Dict, modif_list : List[Tuple[Literal["ADD","REMOVE"],Tuple[str,str]]]):

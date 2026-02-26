@@ -1,21 +1,21 @@
-import requests, os, json_numpy, torch
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
+import requests, torch
 from typing import Dict, List, Tuple, Union
 import numpy as np
-json_numpy.patch()
 
 from ..data_structures import ToolInfos, ToolExecution
 from ..envs import DefaultEnv
 from collections import OrderedDict
-
-mplib_container_url = os.getenv("MPLIB_URL", None)
-if not mplib_container_url:
-    raise ValueError("You need to define the mplib port")
 
 class TrajectoryConverter():
     """
     This class allows to compute the steps of action based on the Trajectory computed by the tool from the Task.
     It's initialized with the pose of each controllable agents from environment
     """
+
+    mplib_container_url : str
 
     agents : Dict # Dict with key as agent names and value as ref to the BaseAgent class from maniskill
     agents_name : List[str]
@@ -26,8 +26,10 @@ class TrajectoryConverter():
             self,
             env : DefaultEnv, # ref to default env class
             max_nb_env : int,
+            mplib_container_url : str,
             planner_init_options : Dict = {}
         ) -> None:
+        self.mplib_container_url = mplib_container_url
         self.max_nb_env = max_nb_env
         agent_names = env.agents_name
         self.agents = {}
@@ -56,8 +58,9 @@ class TrajectoryConverter():
                 'options': options}
 
         requests.post(
-            f"{mplib_container_url}/init",
-            json=req)
+            f"{self.mplib_container_url}/init",
+            json=req
+        )
         
     def _single_agent_step(self, existing_env_dict : Dict[int, ToolInfos]) -> torch.Tensor:
         """Return a torch tensor containing all action for all parrallel environment based on the env dict"""
@@ -119,14 +122,13 @@ class TrajectoryConverter():
                 continue
 
             result = requests.post(
-            f"{mplib_container_url}/plan",
+            f"{self.mplib_container_url}/plan",
             json={
                 "pose": np.concatenate([p.p, p.q]).tolist(),
                 "robot_qpos": q_pos,
                 "base_pose" : array_base_pose
             }).json()
-            result = json_numpy.loads(result)
-
+            
             if not result["status"] == "Success":
                 return False, latent_action
 

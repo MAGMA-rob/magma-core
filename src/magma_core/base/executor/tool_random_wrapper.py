@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 # Author : Loan BERNAT
 # 2 BSD
 
@@ -138,7 +141,7 @@ class ToolRandomizerWrapper():
                 if not isinstance(config_val, List):
                     raise TypeError(f"There is a config value ({i}) for attributes {att_name} which is not a List ({type(config_val)})")
                 if len(config_val) < len(att_val):
-                    raise TypeError(f"There is a config value ({i}) for attributes {att_name} with a lenght ({len(config_val)}) < to task attributes ({len(att_val)})")
+                    raise TypeError(f"There is a config value ({i}) for attributes {att_name} with a length ({len(config_val)}) < to task attributes ({len(att_val)})")
                                
 
             config_values = random.choice(possible_val)

@@ -1,4 +1,7 @@
-from typing import Dict, Optional
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
+from typing import Dict, Optional, Any
 import yaml
 from pathlib import Path
 from dataclasses import dataclass
@@ -12,17 +15,13 @@ class BackendConfig:
     timeout: float = 30
     max_retry: int = 3
 
-    def to_dict(self) -> Dict:
-        return {
-            "endpoint" : self.endpoint,
-            "timeout" : self.timeout,
-            "max_retry": self.max_retry,
-            "headers": self.headers,
-            "default_model": self.default_model
-        }
-
+@dataclass
 class MAGMAConfig:
-    backends: Dict[int,BackendConfig]
+    backends: Dict[str,BackendConfig]
+    generate: Dict[str, Any]
+    benchmark: Dict[str, Any]
+    magma_agent_address: str
+    magma_planner_address: str
 
     @staticmethod
     def load(path : Optional[Path] = None) -> "MAGMAConfig":
@@ -48,3 +47,53 @@ class MAGMAConfig:
         data["backends"] = backends
         return MAGMAConfig(**data)
     
+    def override_with_dict(self, arg_dict : Dict):
+        """
+        Override the configuration with runtime arguments
+        """
+
+        def _recursive_override(base : Dict, override : Any):
+            for k, v in override.items():
+                if isinstance(v, dict) and isinstance(base.get(k), dict):
+                    _recursive_override(base[k], v)
+                else:
+                    base[k] = v
+        
+        if "generate" in arg_dict:
+            _recursive_override(self.generate, arg_dict["generate"])
+        
+        if "benchmark" in arg_dict:
+            _recursive_override(self.benchmark, arg_dict["benchmark"])
+        
+        # Backend activation
+        active_backends = arg_dict.get("active_backends", [])
+        if active_backends:
+            self.backends = {
+                b: self.backends[b]
+                for b in active_backends
+                if b in self.backends
+            }
+
+        # Server override
+        if arg_dict.get("magma_agent_address"):
+            self.magma_agent_address = arg_dict["magma_agent_address"]
+
+    def verify(self):
+        """
+        Raise a ValueError if the config is not valid
+        """
+
+        if len(self.backends) == 0:
+            raise ValueError("There is no backend specified. You must at least have one for UserSim")
+        
+        if self.generate["mode"] != "single" and self.generate["mode"] != "dual":
+            raise ValueError(f"Unknow mode {self.generate['mode']}. Acceptable : single, dual")
+        
+        if self.generate['nb_branch'] <= 1:
+            raise ValueError(f"The nb_branch parameters must be > 1")
+        
+        if self.generate['nb_env'] <= 1:
+            raise ValueError(f"The nb_env parameters must be > 1")
+        
+        if self.generate['nb_max_update'] <= 1:
+            raise ValueError(f"The nb_max_update parameters must be > 1")

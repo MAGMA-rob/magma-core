@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 from enum import IntEnum
 from typing import Dict
 import magma_core._prompts as prompts

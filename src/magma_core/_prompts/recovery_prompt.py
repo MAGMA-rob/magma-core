@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 BUILD_REPEAT="""
 You are in charge of generating a recovery response after a robot executed
 a valid tool call but encountered an execution-time error.

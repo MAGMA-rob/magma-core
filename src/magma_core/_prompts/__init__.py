@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 from .judge_prompt import BENCHMARK_JUDGE_PROMPT
 from .simulate_user_prompt import SIMULATE_USER_PROMPT
 from .diagnosis_non_optimal import DIAGNOSIS_DUAL_PROMPT, DIAGNOSIS_SINGLE_PROMPT

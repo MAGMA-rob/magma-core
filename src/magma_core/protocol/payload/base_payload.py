@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 from abc import ABC, abstractmethod
 from typing import Dict, List, Any, Tuple, Optional, Type
 from ..registry import ExternalRequestType

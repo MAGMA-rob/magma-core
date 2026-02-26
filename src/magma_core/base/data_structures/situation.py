@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 from __future__ import annotations
 from typing import List, Dict, Any, Literal, Optional, Tuple
 from abc import ABC, abstractmethod

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 from typing import Callable, Any, Dict, List, Optional, Tuple, Literal
 from dataclasses import dataclass, field
 from enum import IntEnum

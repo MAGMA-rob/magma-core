@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 CLEAN_MEMORY= """
 You are a memory cleaning module for a robotic agent.
 

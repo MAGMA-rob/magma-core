@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 FIX_TEXT_ONLY="""
 You are a validator and rewriter for a robot assistant.
 

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 BENCHMARK_JUDGE_PROMPT = """You are a strict evaluator. Your task is to analyze a model's answer against a given rule and determine if it is correct.
 
 INPUTS:

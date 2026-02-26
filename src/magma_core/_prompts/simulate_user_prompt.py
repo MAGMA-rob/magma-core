@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
 SIMULATE_USER_PROMPT = """You are simulating a human user interacting with a robot assistant.
 Your role is to behave like a realistic human according to the scenario.
 Follow the persona, goals, and restrictions defined below and respond ONLY as the user would.
