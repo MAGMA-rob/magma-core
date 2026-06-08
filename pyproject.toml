@@ -7,7 +7,13 @@ version = "0.1.0"
 description = "Core abstractions and protocols for MAGMA"
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = ["torch","requests","mani_skill","numpy<2.0"] 
+dependencies = [
+    "torch",
+    "requests",
+    "mani_skill",
+    "numpy<2.0",
+    "PyYAML",
+]
 # Numpy < 2.0 because mani_skill supports only numpy 1.x
 
 [project.optional-dependencies]
@@ -16,6 +22,12 @@ dev = ["pytest"]
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"magma_core.configs" = ["*.yaml"]
 
 [tool.pytest.ini_options]
 addopts = "-p no:launch_testing -p no:launch_ros"

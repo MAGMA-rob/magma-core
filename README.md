@@ -7,6 +7,20 @@ This package does nothing on its own but it's required by any magma applications
 
 Installation, links and recommendation are provided here: [core installation](https://magma-rob.github.io/docs/installation)
 
+## Install from GitHub
+
+Install the latest code from `main`:
+
+```bash
+pip install "git+https://github.com/MAGMA-rob/magma-core.git@main"
+```
+
+Install a pinned release tag:
+
+```bash
+pip install "git+https://github.com/MAGMA-rob/magma-core.git@v0.1.0"
+```
+
 ---
 
 If you spot any documentation errors, problem in the code. Please contact me at `l.bernat@sileane.com`
