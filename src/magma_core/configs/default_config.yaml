@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright (c) 2026, Loan Bernat
+
+# Set some default parameters for the (possible multiple) backend to use
+# Available type are currently only ollama (to do: vllm,...)
+backends: {}
+  # This is an exemple of what a backend could looks like
+  # default_ollama:
+  #   type: ollama
+  #   endpoint: "https://http://172.16.21.1:21601/v1/chat/completions"
+  #   default_model: "gpt-oss:20b"
+  #   timeout: 30
+  #   max_retry: 3
+  #   # If your server requires an header for authorization or anything. You can set it here
+  #   headers:
+  #     Authorization: null
+  #     Content-type: "application/json"
+
+# The address of your magma_agent server
+magma_agent_address: "http://localhost:8888"
+# The address of your magma_planner server
+magma_planner_address: "http://localhost:8000"
+
+###
+# Default args for the different pipelines of MAGMA. 
+# You can override these args when launching the pipelines, but these are the default values that will be used if you don't specify them.
+###
+
+# Generate args specifies default arguments for the generation pipeline of MAGMA-GEN
+generate:
+  mode: single
+  seed: null # Optional seed used to make MAGMA-GEN task creation and randomization reproducible
+  nb_branch: 2 # The number of answer an agent will generate per state
+  history_length: 3 # use only in dual - Limit the size of the history
+  nb_env: 64 # The nb of env that maniskill are creating
+  nb_max_update: 10 # The maximal number of state that the agent will answer in parrallel
+  max_start_per_stage: 10 # The maximal number of trajectory to launch per stage
+  randomized: true # If the task should be randomized (the task must define a randomization config)
+  coaching: true # If the pipeline must activate coaching
+
+# Benchmark args specifies default arguments for the evaluation pipeline of MAGMA-BENCH.
+benchmark:
+  backend_verifier: none # Which backend instance to use for the verifier. It should be one of the backend defined in the backends section.
+  num_eval: 1 # The number of evaluation per instruction (introduce variability in tasks).
+  logs: false # If true, it will generate detailled results logs for each scenario and each task containing full interaction trace and detailled metrics.
+  videos: false # If true, it generates videos of the movement for each task.
+  shader: default # Change shader used for rendering. Default is 'default' which is very fast. Can also be 'rt' for ray tracing and generating photo-realistic renders. Can also be 'rt-fast' for a faster but lower quality ray-traced renderer
+  seed: 42 # The seed used for the benchmark. 
+  save_dir: "eval" # The directory where to save the results. Each benchmark running generates it own subdirectory in this directory with the date and time of the launch. Each scenario will also have its own subdirectory in which results specific to the scenario are stored.
+  sim_backend: auto # Which simulation backend to use. Can be 'auto', 'cpu', 'gpu'
