@@ -16,7 +16,7 @@ from pathlib import Path
 from magma_core._clients import LLMClientBase, ClientFactory
 from magma_core.protocol.payload import BasePayload
 from magma_core.configs import BackendConfig
-from magma_core.protocol.registry import PROMPT_REGISTRY, ExternalRequestType
+from magma_core.protocol.agent_coaching import CoachingLog
 
 class LMWorker:
     """
@@ -30,18 +30,8 @@ class LMWorker:
     client : LLMClientBase
 
     # COACHING LOGGING AND DEBUG Set To TRUE to log each coaching request
-    DEBUG_LOG_COACHING = False
+    DEBUG_LOG_COACHING = True
     DEBUG_LOG_DIR = "output/_coaching_logs"
-    _DEBUG_COACHING_TYPES = {
-        ExternalRequestType.JUDGE,
-        ExternalRequestType.BAD_CALL_FIX,
-        ExternalRequestType.BAD_CALL_DIAGNOSE,
-        ExternalRequestType.FAILURE_TEXT_ONLY_ANSWER_DIAGNOSE,
-        ExternalRequestType.FAILURE_TEXT_ONLY_ANSWER_FIX,
-        ExternalRequestType.FAILURE_TEXT_ONLY_FIX,
-        ExternalRequestType.MISSING_ACTION_DIAGNOSE,
-        ExternalRequestType.MISSING_ACTION_FIX
-    }
     _debug_log_counter = 0
     _debug_log_lock = threading.Lock()
     
@@ -62,7 +52,7 @@ class LMWorker:
 
     @classmethod
     def _should_debug_log_coaching(cls, payload: BasePayload) -> bool:
-        return cls.DEBUG_LOG_COACHING and payload.augment_type in cls._DEBUG_COACHING_TYPES
+        return cls.DEBUG_LOG_COACHING and payload.debug_log
 
     @staticmethod
     def _slugify_debug_value(value: str) -> str:
@@ -126,16 +116,16 @@ class LMWorker:
             backend = self._get_backend_metadata()
             requested_model = payload.model if payload.model is not None else "<default>"
             resolved_model = payload.model if payload.model is not None else backend["default_model"]
-            path = self._next_debug_log_path(payload, backend["label"])
+
             timestamp = datetime.now().isoformat(timespec="seconds")
-            augment_type = f"{payload.augment_type.name} ({int(payload.augment_type)})"
 
             content = [
                 "# LMWorker Coaching Debug Log",
                 "",
                 "## Metadata",
+                f"- Node: `{payload.id}`",
+                payload.log_context,
                 f"- Payload class: `{payload.__class__.__name__}`",
-                f"- Augment type: `{augment_type}`",
                 f"- Timestamp: `{timestamp}`",
                 f"- Backend name: `{backend['name'] or '<unnamed>'}`",
                 f"- Backend type: `{backend['type']}`",
@@ -181,7 +171,20 @@ class LMWorker:
                 "",
             ])
 
-            path.write_text("\n".join(content), encoding="utf-8")
+            log_type = payload.log_type
+            if log_type is None:
+                log_type = {
+                    "CoachDiagnosisPayload": "diagnosis",
+                    "SuboptimalDiagnosisPayload": "suboptimal_diagnosis",
+                    "FormatFixPayload": "format",
+                }.get(payload.__class__.__name__)
+            if log_type is None:
+                log_type = re.sub(r"(?<!^)(?=[A-Z])", "_", payload.__class__.__name__).lower().removesuffix("_payload")
+            log = CoachingLog(coaching_type=log_type, content="\n".join(content))
+            if payload.log_sink is not None:
+                return payload.log_sink(log)
+            path = self._next_debug_log_path(payload, backend["label"])
+            path.write_text(log.content, encoding="utf-8")
             return path
         except Exception as log_error:
             self.logger.warning(
@@ -208,7 +211,7 @@ class LMWorker:
         backend = self._get_backend_metadata()
         resolved_model = payload.model if payload.model is not None else backend["default_model"]
         try:
-            prompt = PROMPT_REGISTRY[payload.augment_type]
+            prompt = payload.prompt_template
             payload_dict = payload.to_dict()
             p_dict = copy.deepcopy(payload_dict)
             old_messages = p_dict.pop("old_messages", [])
@@ -240,7 +243,7 @@ class LMWorker:
                     backend["endpoint"],
                     backend["type"],
                     resolved_model,
-                    payload.augment_type.name,
+                    payload.__class__.__name__,
                     payload.id,
                     str(debug_log_path) if debug_log_path is not None else "n/a",
                 )
@@ -262,7 +265,7 @@ class LMWorker:
                     backend["endpoint"],
                     backend["type"],
                     resolved_model,
-                    payload.augment_type.name,
+                    payload.__class__.__name__,
                     payload.id,
                     str(debug_log_path) if debug_log_path is not None else "n/a",
                     e,

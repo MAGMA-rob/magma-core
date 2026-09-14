@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 # Copyright (c) 2026, Loan Bernat
 
-from typing import Dict, List, Tuple
+from typing import Collection, Dict, List, Optional, Tuple
 import json
 import re
 from torch import Tensor
@@ -87,6 +87,77 @@ def batch_set_value(state_env: Dict, env_ids : Tensor, template : Dict, strict :
                     )
                 continue
             value[env_ids] = template_value
+
+
+def apply_env_state_updates(state_env: Dict, env_id: int, updates: List) -> bool:
+    """
+    Apply tool-produced state updates to one env slot of a batched state dict.
+    Each update path must point to a tensor leaf in ``state_env``.
+    """
+    if not updates:
+        return False
+
+    for update in updates:
+        target = state_env
+        for key in update.path:
+            if not isinstance(target, dict) or key not in target:
+                raise KeyError(f"Unknown env state update path: {update.path}")
+            target = target[key]
+        if not isinstance(target, Tensor):
+            raise TypeError(f"Env state update path must target a tensor: {update.path}")
+        value = update.value
+        if isinstance(value, Tensor):
+            value = value.to(device=target.device, dtype=target.dtype)
+        target[env_id] = value
+
+    return True
+
+
+def restore_disallowed_actor_states(
+        state_env: Dict,
+        source_state: Dict,
+        env_id: int,
+        allowed_actor_names: Collection[str],
+    ) -> Optional[List[str]]:
+    """Restore one env slot's actors outside an explicit allowlist.
+
+    ``None`` reports an incompatible declaration or state layout without
+    mutating ``state_env``. An empty list means the protection was valid but no
+    actor state differed from the saved source.
+    """
+    current_actors = state_env.get("actors")
+    source_actors = source_state.get("actors")
+    if not isinstance(current_actors, dict) or not isinstance(source_actors, dict):
+        return None
+
+    allowed_actors = set(allowed_actor_names)
+    if not allowed_actors.issubset(current_actors) or not allowed_actors.issubset(source_actors):
+        return None
+    if set(current_actors) != set(source_actors):
+        return None
+
+    replacements = []
+    restored_actor_names = []
+    for actor_name, source_value in source_actors.items():
+        if actor_name in allowed_actors:
+            continue
+        current_value = current_actors[actor_name]
+        if not isinstance(current_value, Tensor) or not isinstance(source_value, Tensor):
+            return None
+        if current_value[env_id].shape != source_value.shape:
+            return None
+        prepared_source_value = source_value.to(
+            device=current_value.device,
+            dtype=current_value.dtype,
+        )
+        replacements.append((current_value, prepared_source_value))
+        if not current_value[env_id].equal(prepared_source_value):
+            restored_actor_names.append(actor_name)
+
+    for current_value, source_value in replacements:
+        current_value[env_id] = source_value.clone()
+
+    return sorted(restored_actor_names)
 
 
 def extract_env_state_val(st, env_id) -> Dict:

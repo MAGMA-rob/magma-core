@@ -21,6 +21,17 @@ magma_agent_address: "http://localhost:8888"
 # The address of your magma_planner server
 magma_planner_address: "http://localhost:8000"
 
+# Configure who handles coaching payloads.
+coaching:
+  enabled: true
+  provider: llm # llm or human
+  endpoint: null # Required for human, for example http://localhost:8890
+  connect_timeout: 10
+  examples:
+    register_successful: false
+    use_for_automatic: false
+    cache_dir: "cache"
+
 ###
 # Default args for the different pipelines of MAGMA. 
 # You can override these args when launching the pipelines, but these are the default values that will be used if you don't specify them.
@@ -28,21 +39,17 @@ magma_planner_address: "http://localhost:8000"
 
 # Generate args specifies default arguments for the generation pipeline of MAGMA-GEN
 generate:
-  mode: single
   seed: null # Optional seed used to make MAGMA-GEN task creation and randomization reproducible
   nb_branch: 2 # The number of answer an agent will generate per state
-  history_length: 3 # use only in dual - Limit the size of the history
   nb_env: 64 # The nb of env that maniskill are creating
   nb_max_update: 10 # The maximal number of state that the agent will answer in parrallel
   max_start_per_stage: 10 # The maximal number of trajectory to launch per stage
   randomized: true # If the task should be randomized (the task must define a randomization config)
-  coaching: true # If the pipeline must activate coaching
 
 # Benchmark args specifies default arguments for the evaluation pipeline of MAGMA-BENCH.
 benchmark:
   backend_verifier: none # Which backend instance to use for the verifier. It should be one of the backend defined in the backends section.
-  num_eval: 1 # The number of evaluation per instruction (introduce variability in tasks).
-  logs: false # If true, it will generate detailled results logs for each scenario and each task containing full interaction trace and detailled metrics.
+  deterministic_decoding: true # If true, benchmark agents request greedy inference from magma_agent.
   videos: false # If true, it generates videos of the movement for each task.
   shader: default # Change shader used for rendering. Default is 'default' which is very fast. Can also be 'rt' for ray tracing and generating photo-realistic renders. Can also be 'rt-fast' for a faster but lower quality ray-traced renderer
   seed: 42 # The seed used for the benchmark. 

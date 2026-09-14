@@ -26,7 +26,7 @@ def test_apply_att_modif_add_and_remove():
 
 
 def test_apply_att_modif_raises_on_unknown_field():
-    with pytest.raises(ValueError, match="Trying to modify attributes"):
+    with pytest.raises(ValueError, match="missing"):
         apply_att_modif({}, [("ADD", ("missing", "x"))])
 
 

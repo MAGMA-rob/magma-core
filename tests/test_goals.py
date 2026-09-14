@@ -18,7 +18,7 @@ torch = pytest.importorskip("torch")
 if getattr(torch, "__codex_stub__", False):
     pytest.skip("requires a real torch install for tensor operations", allow_module_level=True)
 
-from magma_core.base.goals import At, AtLeastCountAt, ExactCountAt, MaxAt, NotAt
+from magma_core.simulation.goals import At, AtLeastCountAt, ExactCountAt, MaxAt, NotAt
 
 
 def _entry(pose, use_components: bool):

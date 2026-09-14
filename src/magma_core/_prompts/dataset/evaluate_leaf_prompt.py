@@ -29,9 +29,6 @@ LAST USER INSTRUCTION:
 {user_instruction}
 
 ANSWER TO EVALUATE:
-Reasoning:
-{reasoning}
-
 User-visible response ("say"):
 {say}
 

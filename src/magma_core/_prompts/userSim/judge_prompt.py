@@ -24,10 +24,12 @@ A response is INVALID if:
 - the meaning is incorrect,
 - the answer is too vague or ambiguous,
 - the rule is only partially satisfied.
+- the answer speak about an action that need to be done whereas the instruction is just giving a rule.
+- the answer asks a question whereas the goal of the stage is just to show understanding.
 
 VALID EXAMPLES
 
-Question:
+User Input:
 "What kind of coffee does John like?"
 
 Rule:
@@ -42,12 +44,18 @@ Invalid answers:
 - "coffee"
 - "light"
 - "I understand"
+- "John likes light coffee, I will start making one"
 
 OUTPUT FORMAT:
 Return ONLY a valid JSON object like {exp}
 
 INPUTS:
-- Question: {question}
-- Rule: {rule}
-- Model answer: {model_answer}
+User Input:
+{question}
+
+Rule:
+{rule}
+
+Model answer:
+{model_answer}
 """

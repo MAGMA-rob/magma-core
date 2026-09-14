@@ -1,29 +1,26 @@
 # SPDX-License-Identifier: BSD-2-Clause
 # Copyright (c) 2026, Loan Bernat
 
-from typing import Dict, Tuple, Type, List, Optional, Any, Literal
+from typing import Any, Dict, List, Literal, Optional, Sequence, Tuple, Type
 
-def apply_att_modif(attributes : Dict, modif_list : List[Tuple[Literal["ADD","REMOVE"],Tuple[str,str]]]):
-    """
-    Docstring for apply_att_modif
+AttributeUpdate = Tuple[Literal["ADD", "REMOVE"], Tuple[str, str]]
 
-    Modify the attributes dict given a list of modification. 
-    A modification is a tuple where :
-    - first element is the type of modification ADD/REMOVE
-    - second element is a tuple where first element is the name of the attributes field to change, and second is the add/remove value.
-    
-    Supporting only List attributes modification for now
 
-    :param attributes: attributes dict
-    :type attributes: Dict
-    :param modif_list: modification list
-    :type modif_list: List[Tuple[Literal["ADD", "REMOVE"], Tuple[str, str]]]
-    """
+def apply_att_modif(
+    attributes: Dict[str, Any],
+    modif_list: Sequence[AttributeUpdate],
+) -> None:
+    """Apply ordered ADD/REMOVE updates to list-valued attributes."""
     for action, (att_name, att_val) in modif_list:
-        if not att_name in attributes:
-            raise ValueError(f"Trying to modify attributes {att_name} from existing {attributes.keys()}")
-        if not isinstance(attributes[att_name], List):
-            raise ValueError("We can only remove list attributes for now")
+        if action not in {"ADD", "REMOVE"}:
+            raise ValueError(f"Unknown attribute update action {action!r}.")
+        if att_name not in attributes:
+            raise ValueError(
+                f"Trying to modify attribute {att_name!r} from existing "
+                f"attributes {sorted(attributes)}."
+            )
+        if not isinstance(attributes[att_name], list):
+            raise ValueError("Only list attributes can be updated for now.")
         if action == "ADD":
             attributes[att_name].append(att_val)
         else:

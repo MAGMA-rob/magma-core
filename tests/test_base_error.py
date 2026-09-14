@@ -3,7 +3,7 @@
 
 import pytest
 
-from magma_core.base.errors import BaseError
+from magma_core.simulation.errors import BaseError
 
 
 class DummyError(BaseError):

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 # Copyright (c) 2026, Loan Bernat
 
+import json
 from typing import Any, Dict, List, Optional, Tuple
 
 
@@ -20,8 +21,10 @@ def merge_runtime_error_context(
     )
 
 
-def format_memory(memory: List[Any]) -> str:
-    return "".join(f"- {mem}\n" for mem in memory)
+def format_memory(memory: Any) -> str:
+    if isinstance(memory, str):
+        return memory
+    return json.dumps(memory, ensure_ascii=True, default=str)
 
 
 def format_runtime_errors(error_descriptions: Optional[List[str]]) -> str:
@@ -53,17 +56,47 @@ def format_tool_names(tools: List[Dict[str, Any]], include_description : bool = 
     return [tool["name"] for tool in tools]
 
 
-def format_stage_trajectory(trajectory: List[Tuple[str, str, bool]]) -> str:
+def format_stage_trajectory(
+    trajectory: List[Dict],
+) -> str:
+    """
+    Transform trajectory steps into a paragraph.
+
+    Robot feedback is already represented by the execution results attached to
+    the preceding decision, so only user instructions are displayed as inputs.
+    """
     lines: List[str] = []
     step_index = 0
-    for event_type, content, diagnosable in trajectory:
-        if event_type in {"USER","SYSTEM","QUERY"}:
-            if diagnosable:
-                step_index += 1
-            else:
-                step_index = 0
-        current_index = step_index if diagnosable else 0
-        lines.append(f"{event_type} {current_index}: {content}")
+    for step_dict in trajectory:
+        if step_dict['diagnosable']:
+            step_index += 1
+        else:
+            step_index = 0
+        if step_dict['input_type'] != "FEEDBACK":
+            lines.append(
+                f"{step_dict['input_type']}: {step_dict['input_content']}"
+            )
+        if "answer" in step_dict:
+            lines.append(f"DECISION {step_index}: {step_dict['answer']}")
+            execution_results = step_dict.get("execution_results")
+            if isinstance(execution_results, list):
+                for execution_result in execution_results:
+                    robot = execution_result.get("robot", "unknown robot")
+                    tool = execution_result.get("tool")
+                    execution_name = f"{robot}.{tool}" if tool else robot
+                    result = "success" if execution_result.get("result") else "failure"
+                    error_flag = execution_result.get("error_flag", "none")
+                    message = execution_result.get("message", "")
+                    formatted_result = f"EXECUTION RESULT [{execution_name}]"
+                    if error_flag != "none":
+                        formatted_result += f" ERROR_FLAG={error_flag}"
+                    if message:
+                        formatted_result += f"; message={message}"
+                    lines.append(formatted_result)
+            elif step_dict.get("error_flag", "none") != "none":
+                lines.append(
+                    f"EXECUTION RESULT: {step_dict['error_flag']}"
+                )
     return "\n".join(lines)
 
 

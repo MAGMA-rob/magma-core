@@ -3,5 +3,18 @@
 
 from .pool import LMWorkerPool
 from .worker import LMWorker
+from .base import PayloadWorker
+from .human_coaching import (
+    HumanCoachingError,
+    HumanCoachingSkip,
+    HumanCoachingWorker,
+)
 
-__all__ = ["LMWorker", "LMWorkerPool"]
+__all__ = [
+    "HumanCoachingError",
+    "HumanCoachingSkip",
+    "HumanCoachingWorker",
+    "LMWorker",
+    "LMWorkerPool",
+    "PayloadWorker",
+]
