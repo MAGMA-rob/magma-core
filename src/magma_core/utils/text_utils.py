@@ -5,6 +5,18 @@ import re, json, copy
 from typing import Any, Optional, List, Dict
 import fnmatch
 
+def join_with_and(values: List[str]) -> str:
+    if len(values) == 0:
+        return ""
+    if len(values) == 1:
+        return values[0]
+    if len(values) == 2:
+        return f"{values[0]} and {values[1]}"
+    return ", ".join(values[:-1]) + f", and {values[-1]}"
+
+def is_or_are(values: List[str]) -> str:
+    return "is" if len(values) == 1 else "are"
+
 def stringify_history_content(content: Any, drop_previous_tool_call: bool = False) -> str:
     cleaned = content
     if drop_previous_tool_call:
@@ -127,40 +139,6 @@ def save_list_of_data_to_file(path_to_file : str, datas : List):
                 f.write(",\n")
         f.write(']')
 
-def build_model_return_from_executor(action : Dict, results : List[bool], reason : str) -> Dict:
-    action_snapshot = copy.deepcopy(action)
-    name = action.get("name", None)
-    if name is None:
-        if len(results) > 1:
-            if not reason:
-                raise RuntimeError
-            status_dict = json.loads(reason)
-            status_dict["previous_tool_call"] = action_snapshot
-            i = 0
-            for robot, tool_mess in status_dict.items():
-                name = action[robot].get('name','unknown')
-                if results[i]:
-                    mess = f"{name} succeed : {tool_mess}"
-                else:
-                    mess = f"{name} fails : {tool_mess}"
-                i+=1
-                status_dict[robot] = mess
-            return status_dict
-        
-        else:
-            key, value = next(iter(action.items()))
-            if not isinstance(value,Dict):
-                try:
-                    value = json.loads(value)
-                except:
-                    name = f"Robot {key} - Failed to parse into dict: {value}"
-            else:
-                name = f"Robot {key} - tool {value.get('name','unknown')}"
-
-    if results[0]:
-        return {"infos" : f"{name} succeed : {reason}", "previous_tool_call": action_snapshot}
-    return {'error' : f"{name} fails : {reason}", "previous_tool_call": action_snapshot}
-
 def build_fake_execution_fail(action : Dict, original_status_dict : Dict, error_mess : Optional[str]) -> Dict:
     if not error_mess:
         error_mess = "The motion planner have encounter a temporary error."
@@ -185,8 +163,6 @@ def build_fake_execution_fail(action : Dict, original_status_dict : Dict, error_
     
     out["previous_tool_call"] = original_status_dict["previous_tool_call"]
     return out
-
-
 
 def star_extractor(env_actors : List, value : str) -> List[str]:
     return [name for name in env_actors if fnmatch.fnmatch(name, value)]

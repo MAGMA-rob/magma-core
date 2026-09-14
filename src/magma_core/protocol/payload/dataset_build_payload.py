@@ -1,15 +1,24 @@
 # SPDX-License-Identifier: BSD-2-Clause
 # Copyright (c) 2026, Loan Bernat
 
-from typing import Dict, List, Any, Tuple, Optional, Type
-from ..registry import ExternalRequestType
-from .base_payload import BasePayload
+import json
+from typing import Any, ClassVar, Dict, List
+
+from magma_core._prompts.dataset.evaluate_leaf_prompt import (
+    COMPARE_LEAF,
+    EVALUATE_LEAF,
+    MEMORY_LEAF,
+)
 from magma_core.utils.text_utils import transform_json_to_memorizer_output
+
+from .base_payload import BasePayload
 
 class EvaluateLeafPayload(BasePayload):
     """
     Payload to evaluate the quality of a leaf, select or reject.
     """
+
+    prompt_template: ClassVar[str] = EVALUATE_LEAF
 
     def __init__(
             self,
@@ -20,7 +29,7 @@ class EvaluateLeafPayload(BasePayload):
             situations : List[Dict],
             success : bool,
             id: int, max_tokens=5000, model = None) -> None:
-        super().__init__(ExternalRequestType.EVALUATE_LEAF, id, max_tokens, model)
+        super().__init__(id, max_tokens, model)
 
         self.user_instruction = user_instruction
         self.task_description = task_description
@@ -28,7 +37,6 @@ class EvaluateLeafPayload(BasePayload):
             "situations" : situations,
             "answers" : answer
         }
-        self.reasoning = answer["think"]
         self.say = answer['say']
         self.stage_description = stage_description
         if success:
@@ -38,7 +46,6 @@ class EvaluateLeafPayload(BasePayload):
 
     def to_dict(self) -> Dict[str, Any]:
         return {
-            "reasoning" : self.reasoning,
             "stage_description" : self.stage_description,
             "task_description" : self.task_description,
             "user_instruction" : self.user_instruction,
@@ -54,20 +61,16 @@ class MemoryCoherenceLeafPayload(BasePayload):
     Payload to evaluate the memory coherence of multiple answer and select the best or reject all
     """
 
+    prompt_template: ClassVar[str] = MEMORY_LEAF
+
     def __init__(
             self,
             answers : List[Dict],
             situation : Dict,
             id: int, max_tokens=5000, model = None) -> None:
-        super().__init__(ExternalRequestType.EVALUATE_MEM_LEAF, id, max_tokens, model)
-        self.memory_str = ""
+        super().__init__(id, max_tokens, model)
         self.think = situation['think']
-        for i, mem in enumerate(situation['memory']):
-            if i in situation['preserved_memory_indices']:
-                idx = "X"
-            else:
-                idx = i
-            self.memory_str += f"{idx}. {mem}\n"
+        self.memory_str = json.dumps(situation['memory'], ensure_ascii=True, default=str)
         self.answers_str = ""
         for i, ans in enumerate(answers):
             answer_str = transform_json_to_memorizer_output(ans)
@@ -94,6 +97,8 @@ class CompareLeafPayload(BasePayload):
     Payload to compare multiple leaf and select one or reject all.
     """
 
+    prompt_template: ClassVar[str] = COMPARE_LEAF
+
     def __init__(
             self,
             user_instruction : str,
@@ -103,14 +108,14 @@ class CompareLeafPayload(BasePayload):
             success : bool,
             situations : List[Dict],
             id: int, max_tokens=5000, model = None) -> None:
-        super().__init__(ExternalRequestType.COMPARE_LEAF, id, max_tokens, model)
+        super().__init__(id, max_tokens, model)
 
         self.user_instruction = user_instruction
         self.task_description = task_description
         self.stage_description = stage_description
         self.answers = ""
         for i,answer in enumerate(answers):
-            self.answers += f"[ANSWER {i}]\nReasoning\n{answer['think']}\nUser-visible Answer\n{answer['say']}\n\n"
+            self.answers += f"[ANSWER {i}]\n{answer['say']}\n\n"
         self.data = {
             "situations" : situations,
             "answers" : answers

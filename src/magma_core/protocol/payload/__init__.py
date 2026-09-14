@@ -2,5 +2,9 @@
 # Copyright (c) 2026, Loan Bernat
 
 from .base_payload import BasePayload
+from .repr_instruction_variation import ReprInstructionVariationPayload
 
-__all__ = ["BasePayload"]
+__all__ = [
+    "BasePayload",
+    "ReprInstructionVariationPayload",
+]

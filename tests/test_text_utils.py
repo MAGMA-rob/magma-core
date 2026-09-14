@@ -6,7 +6,7 @@ Coverage map for this file:
 
 - JSON extraction and memorizer text round-trips.
 - Disk serialization helper.
-- User-facing formatting for executor returns and fake failures.
+- User-facing formatting for fake failures.
 - Small parsing helpers such as wildcard extraction and auto-casting.
 """
 
@@ -17,7 +17,6 @@ import pytest
 from magma_core.utils.text_utils import (
     auto_cast,
     build_fake_execution_fail,
-    build_model_return_from_executor,
     extract_json_from_answer,
     save_list_of_data_to_file,
     star_extractor,
@@ -51,15 +50,6 @@ def test_save_list_of_data_to_file(tmp_path):
     target = tmp_path / "data.json"
     save_list_of_data_to_file(str(target), [{"a": 1}, {"b": 2}])
     assert json.loads(target.read_text()) == [{"a": 1}, {"b": 2}]
-
-
-def test_build_model_return_single_tool():
-    action = {"name": "pick", "arguments": {"item": "box"}}
-    ok = build_model_return_from_executor(action, [True], "done")
-    err = build_model_return_from_executor(action, [False], "failed")
-    assert ok["infos"] == "pick succeed : done"
-    assert err["error"] == "pick fails : failed"
-    assert ok["previous_tool_call"] == action
 
 
 def test_build_fake_execution_fail_single_tool():

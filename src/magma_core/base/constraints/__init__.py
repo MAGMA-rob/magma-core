@@ -1,1 +1,0 @@
-from .base_constraint import BaseConstraint, AttributesModifConstraint

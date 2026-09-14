@@ -8,8 +8,11 @@ Coverage map for this file:
 - Filtering outdated constraints while preserving base constraints order.
 """
 
-from magma_core.base.constraints import BaseConstraint
-from magma_core.base.state import TaskState
+import pytest
+
+from magma_core.simulation.constraints import BaseConstraint
+from magma_core.simulation.state import TaskState
+
 
 
 class AreaAssignmentConstraint(BaseConstraint):

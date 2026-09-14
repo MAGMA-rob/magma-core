@@ -3,20 +3,29 @@
 
 [project]
 name = "magma_core"
-version = "0.1.0"
+version = "2.0.0b1"
 description = "Core abstractions and protocols for MAGMA"
 readme = "README.md"
-requires-python = ">=3.9"
+# First beta supports the Python minor version used for installation validation.
+requires-python = ">=3.12,<3.13"
 dependencies = [
-    "torch",
-    "requests",
-    "mani_skill",
-    "numpy<2.0",
-    "PyYAML",
+    "torch==2.13.0",
+    "requests>=2.34.2,<3",
+    "PyYAML>=6.0.3,<7",
+    "pydantic>=2.4,<3",
+    "typing_extensions>=4.0",
 ]
-# Numpy < 2.0 because mani_skill supports only numpy 1.x
 
 [project.optional-dependencies]
+interface = []
+simulation = [
+    "mani_skill==3.0.1",
+    "sapien==3.0.3",
+    "numpy==1.26.4",
+    "gymnasium==1.3.0",
+    "transforms3d==0.4.2",
+]
+all = ["magma_core[simulation]"]
 dev = ["pytest"]
 
 [build-system]

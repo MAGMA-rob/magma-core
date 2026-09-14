@@ -3,20 +3,20 @@
 
 import pytest
 
-from magma_core.base.data_structures import UserInstruction
-from magma_core.base.stage import ModifAttributesBaseStage
+from magma_core.simulation.data_structures import StageInput, UserInstruction
+from magma_core.simulation.stage import ModifAttributesBaseStage
 
 
 def _attribute_stage(mode: str) -> ModifAttributesBaseStage:
+    stage_input = StageInput(
+        instruction=UserInstruction("update areas"),
+        flag_answer_to_user=True,
+    )
     return ModifAttributesBaseStage(
         mode=mode,
-        instruction=UserInstruction("update areas"),
+        stage_input=stage_input,
         val_name="area1",
         att_name="target_areas",
-        memory=[],
-        preserved_memory_indices=[],
-        attributes={"target_areas": ["area1"]},
-        flag_answer_to_user=True,
     )
 
 
