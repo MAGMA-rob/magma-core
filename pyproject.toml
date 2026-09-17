@@ -3,7 +3,7 @@
 
 [project]
 name = "magma_core"
-version = "2.0.0b2"
+version = "2.0.0b3"
 description = "Core abstractions and protocols for MAGMA"
 readme = "README.md"
 # First beta supports the Python minor version used for installation validation.
