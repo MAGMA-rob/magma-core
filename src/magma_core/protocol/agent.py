@@ -53,12 +53,6 @@ class AgentDecision(ContractModel):
     say: str = ""
     tool_calls: list[ToolCall] = Field(default_factory=list)
 
-    @model_validator(mode="after")
-    def exclusive_action(self) -> "AgentDecision":
-        if self.say and self.tool_calls:
-            raise ValueError("say and tool_calls are mutually exclusive")
-        return self
-
 
 class AgentError(ContractModel):
     code: str = Field(min_length=1)
