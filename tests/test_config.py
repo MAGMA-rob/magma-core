@@ -72,6 +72,14 @@ def test_verify_rejects_unknown_coaching_provider() -> None:
         config.verify()
 
 
+def test_verify_rejects_non_positive_agent_timeout() -> None:
+    config = _make_config(nb_branch=1)
+    config.magma_agent_timeout = 0
+
+    with pytest.raises(ValueError, match="magma_agent_timeout"):
+        config.verify()
+
+
 def test_verify_allows_disabled_human_coaching_without_endpoint() -> None:
     config = _make_config(nb_branch=1)
     config.coaching = CoachingConfig(enabled=False, provider="human")

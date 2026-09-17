@@ -39,6 +39,7 @@ class MAGMAConfig:
     benchmark: Dict[str, Any]
     magma_agent_address: str
     magma_planner_address: str
+    magma_agent_timeout: float = 360
 
     @staticmethod
     def load(path : Optional[Path] = None, accept_no_backend : bool = False) -> "MAGMAConfig":
@@ -127,6 +128,9 @@ class MAGMAConfig:
         if arg_dict.get("magma_agent_address"):
             self.magma_agent_address = arg_dict["magma_agent_address"]
 
+        if arg_dict.get("magma_agent_timeout") is not None:
+            self.magma_agent_timeout = arg_dict["magma_agent_timeout"]
+
     def verify(self, accept_no_backend: bool = False):
         """
         Raise a ValueError if the config is not valid
@@ -142,6 +146,9 @@ class MAGMAConfig:
 
         if self.coaching.connect_timeout <= 0:
             raise ValueError("The coaching connect_timeout must be greater than 0")
+
+        if self.magma_agent_timeout <= 0:
+            raise ValueError("The magma_agent_timeout must be greater than 0")
 
         if not self.coaching.examples.cache_dir.strip():
             raise ValueError("The coaching cache_dir must be non-empty")

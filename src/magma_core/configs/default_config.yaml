@@ -18,6 +18,8 @@ backends: {}
 
 # The address of your magma_agent server
 magma_agent_address: "http://localhost:8888"
+# Maximum time in seconds to wait for magma_agent HTTP responses.
+magma_agent_timeout: 360
 # The address of your magma_planner server
 magma_planner_address: "http://localhost:8000"
 
@@ -50,8 +52,7 @@ generate:
 benchmark:
   backend_verifier: none # Which backend instance to use for the verifier. It should be one of the backend defined in the backends section.
   deterministic_decoding: true # If true, benchmark agents request greedy inference from magma_agent.
-  videos: false # If true, it generates videos of the movement for each task.
+  videos: off # One of: off, all, planner-failure.
   shader: default # Change shader used for rendering. Default is 'default' which is very fast. Can also be 'rt' for ray tracing and generating photo-realistic renders. Can also be 'rt-fast' for a faster but lower quality ray-traced renderer
   seed: 42 # The seed used for the benchmark. 
-  save_dir: "eval" # The directory where to save the results. Each benchmark running generates it own subdirectory in this directory with the date and time of the launch. Each scenario will also have its own subdirectory in which results specific to the scenario are stored.
   sim_backend: auto # Which simulation backend to use. Can be 'auto', 'cpu', 'gpu'
