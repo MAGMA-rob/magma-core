@@ -3,10 +3,10 @@
 
 [project]
 name = "magma_core"
-version = "2.0.0b3"
+version = "2.0.0"
 description = "Core abstractions and protocols for MAGMA"
 readme = "README.md"
-# First beta supports the Python minor version used for installation validation.
+# Supports the Python minor version used for installation validation.
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "torch>=2.8,<3",
