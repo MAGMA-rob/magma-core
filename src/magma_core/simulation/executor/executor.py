@@ -235,6 +235,7 @@ class ToolsBaseExecutor(ABC):
             if randomizer is not None:
                 translated_call = randomizer.map_tool_call(function_name, arguments)
                 if isinstance(translated_call, ToolExecution):
+                    translated_call.robot_idx = agent_id
                     robot_tools.append(
                         RobotToolContext(call.target_robot_name, translated_call)
                     )

@@ -1,8 +1,12 @@
 # SPDX-License-Identifier: BSD-2-Clause
 # Copyright (c) 2026, Loan Bernat
 
+from unittest.mock import Mock
+
 import pytest
 
+from magma_core.domain import Call
+from magma_core.simulation.executor.executor import ToolsBaseExecutor
 from magma_core.simulation.data_structures import (
     RobotToolStatus,
     StatusReturn,
@@ -34,6 +38,52 @@ def test_runtime_randomizer_rejects_non_dict_tool_arguments() -> None:
     assert isinstance(out, ToolExecution)
     assert out.failure_flag == ToolErrorFlag.BAD_CALL
     assert out.reason == "Arguments for public_tool must be a dict, got str."
+
+
+def test_translation_error_keeps_target_robot_in_mixed_batch() -> None:
+    randomizer = RuntimeRandomizer(
+        RandomizationSpec(
+            tool_equivalence={
+                "public_tool": {
+                    "name": "real_tool",
+                    "parameters": {},
+                }
+            }
+        )
+    )
+    task = Mock()
+    task.get_agent_names.return_value = ["robot_a", "robot_b"]
+    task.get_active_stage_error.return_value = []
+    task.execute_tools.return_value = ToolExecution(["OK"], verifier=None)
+    executor = Mock()
+    executor._initialize_stage_error_state.return_value = {}
+
+    context = ToolsBaseExecutor._compute_tool(
+        executor,
+        task_ref=task,
+        randomizer=randomizer,
+        calls=[
+            Call("public_tool", {}, "robot_a"),
+            Call("public_tool", {"unexpected": "value"}, "robot_b"),
+        ],
+        env_id=0,
+        obs={},
+        error_state={},
+        stage_id=0,
+        current_node_step=0,
+        original_log_length=0,
+        source_node_id=0,
+        attributes={},
+        previous_tool_calls=0,
+        previous_forgiven_tool_calls=0,
+        node_id=0,
+    )
+
+    assert [tool.robot_name for tool in context.tool_robots] == ["robot_a", "robot_b"]
+    assert [tool.tool_execution.robot_idx for tool in context.tool_robots] == [0, 1]
+    assert not context.is_full_error()
+    assert context.tool_robots[1].tool_execution.failure_flag == ToolErrorFlag.BAD_CALL
+    assert context.tool_robots[1].tool_execution.reason == "unexpected are not valid arguments"
 
 
 def test_runtime_randomizer_tracks_tool_translation_per_execution_id() -> None:
